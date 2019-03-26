@@ -38,7 +38,7 @@ function getJSON(path) {
 function writeServerConfigFile(json){
     let toWrite = JSON.stringify(json);
     console.log(toWrite);
-    fs.writeFile('src/server_connect_config.json', toWrite, 'utf8', err => {
+    fs.writeFile('./server_connect_config.json', toWrite, 'utf8', err => {
         console.log(err);
     });
 }

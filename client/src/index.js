@@ -7,20 +7,20 @@ import Patients from "./components/Patients.js";
 import App from "./components/App";
 import * as serviceWorker from "./serviceWorker";
 
-import { Route, Link, BrowserRouter as Router, Switch } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 
-
+const root =  window.location.toString();
 
 const routing = (
 
-  <Router>
+  <HashRouter basename={root}>
       <div className={"routes"}>
       <Route path="/" component={Header} />
       <Route exact path="/" component={Login} />
       <Route path="/home" component={Home} />
       <Route path={"/Patients"} component={Patients} />
     </div>
-  </Router>
+  </HashRouter>
 );
 
 ReactDOM.render(routing, document.getElementById("root"));

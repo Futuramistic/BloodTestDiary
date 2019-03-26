@@ -15,8 +15,8 @@ import openSocket from 'socket.io-client';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
-const host = decodeURIComponent(cookies.get("ip"));
-const port = cookies.get("port");
+const host = "82.11.191.230"//"http://localhost"//decodeURIComponent(cookies.get("ip"));
+const port = "31000"//cookies.get("port");
 
 const underTwelve = 0;
 const overTwelve = 1;

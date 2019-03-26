@@ -104,8 +104,8 @@ app.on('ready', () => {
   let config = jsonController.getJSON(`${path.join(__dirname, '/server_connect_config.json')}`);
   ip = config.ip;
   port = config.port;
-  currentSession.cookies.set({name: "ip", value: config.ip, url: "file://", path: "/"}, err => {dialog.showMessageBox({ message: err})});
-  currentSession.cookies.set({name: "port", value: config.port, url: "file://", path: "/"}, err => {dialog.showMessageBox({ message: err})});
+  currentSession.cookies.set({name: "ip", value: config.ip, url: `${path.join(__dirname, '../build/index.html')}`, path: "/"}, err => {return});
+  currentSession.cookies.set({name: "port", value: config.port, url: `${path.join(__dirname, '../build/index.html')}`, path: "/"}, err => {return});
   mainWindow.once('ready-to-show', () => {
       splash.destroy();
       mainWindow.show();
