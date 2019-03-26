@@ -4,8 +4,12 @@ const session  = electron.session;
 const globalShortcut = electron.globalShortcut;
 const BrowserWindow = electron.BrowserWindow;
 
+const { dialog } = require('electron')
+
+const path = require('path');
+const url = require('url');
 const isDev = require('electron-is-dev');
-const jsonController = require("../lib/json-controller.js");
+const jsonController = require(`${path.join(__dirname, '/lib/json-controller.js')}`);
 
 const maxWindowWidth = 1400;
 const maxWindowHeight = 800;
@@ -55,19 +59,19 @@ function createWindows() {
 
   mainWindow = new BrowserWindow({width: getWindowSize("width"), height: getWindowSize("height"), backgroundColor: '#f4f9fd', frame: false, resizable: true, show: false, minWidth : 300,
   minHeight : 300});
-  mainWindow.loadURL(isDev ? 'http://localhost:3000' : './public/index.html');
+  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `${path.join(__dirname, '../build/index.html')}`);
   mainWindow.on('closed', () => mainWindow = null);
 
 
   splash = new BrowserWindow({width: getSplashSize("width"), height: getSplashSize("height"), backgroundColor: '#f4f9fd', frame: false, resizable: false});
-  splash.loadFile('./public/loading.html');
+  splash.loadFile(`${path.join(__dirname, '/loading.html')}`);
 
 }
 
 function getCoreCookies(callback){
     let newIp = undefined;
     let newPort = undefined;
-    currentSession.cookies.get({url: "http://localhost"}, (err, cookies) => {
+    currentSession.cookies.get({url: "/"}, (err, cookies) => {
         console.log(cookies);
         for (let i = 0; i < cookies.length; ++i){
             let cookie = cookies[i];
@@ -96,14 +100,15 @@ app.on('ready', () => {
   setScreenSize();
   createWindows();
   currentSession = mainWindow.webContents.session;
-  let config = jsonController.getJSON("src/server_connect_config.json");
+  let config = jsonController.getJSON(`${path.join(__dirname, '/server_connect_config.json')}`);
   ip = config.ip;
   port = config.port;
-  currentSession.cookies.set({name: "ip", value: config.ip, url: "http://localhost"}, err => {console.log(err)});
-  currentSession.cookies.set({name: "port", value: config.port, url: "http://localhost"}, err => {console.log(err)});
+  currentSession.cookies.set({name: "ip", value: config.ip, url: "https://www.google.com", path: "/"}, err => {dialog.showMessageBox({ message: err})});
+  currentSession.cookies.set({name: "port", value: config.port, url: "https://www.google.com", path: "/"}, err => {dialog.showMessageBox({ message: err})});
   mainWindow.once('ready-to-show', () => {
       splash.destroy();
       mainWindow.show();
+      mainWindow.webContents.openDevTools()
   });
 });
 
