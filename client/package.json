@@ -61,9 +61,9 @@
   "build": {
     "appId": "com.example.blood_test_diary",
     "directories": {
-			"buildResources": "build",
-			"output": "dist"
-		}
+      "buildResources": "build",
+      "output": "dist"
+    }
   },
   "browserslist": [
     ">0.2%",

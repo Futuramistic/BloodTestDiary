@@ -1,5 +1,6 @@
 const electron = require('electron');
 const app = electron.app;
+app.commandLine.appendSwitch('enable-file-cookies');
 const session  = electron.session;
 const globalShortcut = electron.globalShortcut;
 const BrowserWindow = electron.BrowserWindow;
@@ -58,7 +59,7 @@ function setScreenSize() {
 function createWindows() {
 
   mainWindow = new BrowserWindow({width: getWindowSize("width"), height: getWindowSize("height"), backgroundColor: '#f4f9fd', frame: false, resizable: true, show: false, minWidth : 300,
-  minHeight : 300});
+  minHeight : 300, 'web-preferences': {'plugins': true}});
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `${path.join(__dirname, '../build/index.html')}`);
   mainWindow.on('closed', () => mainWindow = null);
 
@@ -103,8 +104,8 @@ app.on('ready', () => {
   let config = jsonController.getJSON(`${path.join(__dirname, '/server_connect_config.json')}`);
   ip = config.ip;
   port = config.port;
-  currentSession.cookies.set({name: "ip", value: config.ip, url: "https://www.google.com", path: "/"}, err => {dialog.showMessageBox({ message: err})});
-  currentSession.cookies.set({name: "port", value: config.port, url: "https://www.google.com", path: "/"}, err => {dialog.showMessageBox({ message: err})});
+  currentSession.cookies.set({name: "ip", value: config.ip, url: "file://", path: "/"}, err => {dialog.showMessageBox({ message: err})});
+  currentSession.cookies.set({name: "port", value: config.port, url: "file://", path: "/"}, err => {dialog.showMessageBox({ message: err})});
   mainWindow.once('ready-to-show', () => {
       splash.destroy();
       mainWindow.show();
