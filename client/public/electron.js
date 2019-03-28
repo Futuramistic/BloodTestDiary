@@ -1,11 +1,9 @@
 const electron = require('electron');
 const app = electron.app;
-app.commandLine.appendSwitch('enable-file-cookies');
 const session  = electron.session;
 const globalShortcut = electron.globalShortcut;
 const BrowserWindow = electron.BrowserWindow;
-
-const { dialog } = require('electron')
+const { ipcMain } = require('electron')
 
 const path = require('path');
 const url = require('url');
@@ -69,32 +67,13 @@ function createWindows() {
 
 }
 
-function getCoreCookies(callback){
-    let newIp = undefined;
-    let newPort = undefined;
-    currentSession.cookies.get({url: "/"}, (err, cookies) => {
-        console.log(cookies);
-        for (let i = 0; i < cookies.length; ++i){
-            let cookie = cookies[i];
-            if (cookie.name === "ip"){
-                newIp = cookie.value;
-            }
-            else if (cookie.name === "port"){
-                newPort = cookie.value;
-            }
-        }
-        callback(newIp, newPort)
-    });
+function getServerConfig() {
+  let config = jsonController.getJSON(`${path.join(__dirname, '/server_connect_config.json')}`);
+  ip= config.ip;
+  port= config.port;
+  return serverConfig = {ip, port};
 }
 
-function safeExit(callback){
-    getCoreCookies((newIp, newPort) => {
-        if (newIp !== ip || newPort !== port){
-            jsonController.writeServerConfigFile({ip: newIp, port: newPort});
-        }
-        callback();
-    });
-}
 
 app.on('ready', () => {
 
@@ -102,19 +81,35 @@ app.on('ready', () => {
   createWindows();
   currentSession = mainWindow.webContents.session;
   let config = jsonController.getJSON(`${path.join(__dirname, '/server_connect_config.json')}`);
-  ip = config.ip;
-  port = config.port;
-  currentSession.cookies.set({name: "ip", value: config.ip, url: `${path.join(__dirname, '../build/index.html')}`, path: "/"}, err => {return});
-  currentSession.cookies.set({name: "port", value: config.port, url: `${path.join(__dirname, '../build/index.html')}`, path: "/"}, err => {return});
+  global.sharedObj = {
+    ip: config.ip,
+    port: config.port
+  }
+
+  ipcMain.on('catch_on_main', (event, data) => {
+    if (data.ip !== ip || data.port !== port){
+        jsonController.writeServerConfigFile({ip: data.ip, port: data.port});
+        global.sharedObj = {
+          ip: data.ip,
+          port: data.port
+        }
+    }
+  })
+
+  ipcMain.on('update', (event, data) => {
+    mainWindow.send('sendToRenderer', getServerConfig())
+  })
+
   mainWindow.once('ready-to-show', () => {
       splash.destroy();
       mainWindow.show();
-      mainWindow.webContents.openDevTools()
+
+      mainWindow.send('sendToRenderer', getServerConfig())
   });
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-      safeExit( () => app.quit())
+      app.quit();
   }
 });

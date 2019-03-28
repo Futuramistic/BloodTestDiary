@@ -1,6 +1,6 @@
 {
   "name": "blood_test_diary_client",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",

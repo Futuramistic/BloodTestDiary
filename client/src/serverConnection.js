@@ -13,22 +13,28 @@
 
 import openSocket from 'socket.io-client';
 import Cookies from 'universal-cookie';
-const cookies = new Cookies();
 
-const host = "82.11.191.230"//"http://localhost"//decodeURIComponent(cookies.get("ip"));
-const port = "31000"//cookies.get("port");
+const electron = window.require('electron');
+const fs = electron.remote.require('fs');
+const ipcRenderer  = electron.ipcRenderer;
+
+const cookies = new Cookies();
 
 const underTwelve = 0;
 const overTwelve = 1;
+
+
+let host = window.serverHost;
+let port = window.serverPort;
+
 
 class ServerConnect {
 
     constructor(){
         this.loginToken = cookies.get("accessToken");
         this.currentRoom = "";
-        this.socket = openSocket(`${host}:${port}`);
         this.currentMode = overTwelve;
-
+        this.socket = openSocket(`${host}:${port}`);
 
         /**
         *   Triggered when a connection is established.
@@ -68,8 +74,8 @@ class ServerConnect {
         this.socket.on("patientEdited", (patientId, newInfo) => {
             this.onPatientEdit(patientId, newInfo);
         });
-
     }
+
 
     isAdmin(){
         return this.currentUser.isAdmin === "yes";
@@ -506,6 +512,8 @@ class ServerConnect {
 
 
 let serverConnect = new ServerConnect();
+
+
 /**
 * Function to get the unique instance of the server connection
 * @returns {ServerConnect}

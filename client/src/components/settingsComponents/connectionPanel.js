@@ -3,7 +3,9 @@ import styled from "styled-components";
 
 import Cookies from 'universal-cookie';
 import { getServerConnect } from '../../serverConnection';
-const cookies = new Cookies();
+const electron = window.require('electron');
+const fs = electron.remote.require('fs');
+const ipcRenderer  = electron.ipcRenderer;
 
 const Container = styled.div`
   height: auto;
@@ -16,7 +18,7 @@ const Container = styled.div`
   justify-content: flex-start;
   align-items: center;
 
-  
+
   color: #646464;
 
 
@@ -87,29 +89,42 @@ const RestartLabel = styled.p`
 
 `;
 
-let oldIp;
-let oldPort;
+let oldIp = "";
+let oldPort = "";
 
-function refresh(){
-  window.location.reload(true);
+function refresh(serverConfig){
+  ipcRenderer.send('catch_on_main', serverConfig)
+  window.location.reload(true)
 }
 
 export default class ConnectionPanel extends Component {
 
   constructor(props){
       super(props);
+      ipcRenderer.send('update')
+      ipcRenderer.on('sendToRenderer', this.handleRenderer)
       this.state = {
-        ip: cookies.get("ip"),
-        port: cookies.get("port")
+        ip: "",
+        port: ""
       };
       this.serverConnect = getServerConnect();
 
+
+  }
+
+  handleRenderer = (event, data) => {
+    this.setState({
+      ip: data.ip,
+      port: data.port,
+    }, () => {
       oldIp = this.state.ip;
       oldPort = this.state.port;
+    });
 
   }
 
   handleChange = (event) => {
+    event.preventDefault();
     const target = event.target;
     const value = target.value;
     const name = target.name;
@@ -119,13 +134,18 @@ export default class ConnectionPanel extends Component {
     });
   }
 
-  updateIP = () => {
-    cookies.set("ip", this.state.ip, { path: '/' })
+  updateServerConfig = () => {
+    const ip = this.state.ip;
+    const port = this.state.port;
+
   }
 
-  updatePort = () => {
-    cookies.set("port", this.state.port, { path: '/' })
+  onSubmit = event => {
+    event.preventDefault();
+    let config = {ip: this.state.ip, port: this.state.port}
+    refresh(config);
   }
+
 
   render(){
     return (
@@ -133,15 +153,15 @@ export default class ConnectionPanel extends Component {
         <p className="connectionTitle" >Connection details</p>
         <InputSection>
           <ConnectionLabel>IP:</ConnectionLabel>
-          <input id="ipInput" type="text" name="ip" className="connectionInput" value={this.state.ip} onChange={this.handleChange} onBlur={this.updateIP}/>
+          <input id="ipInput" type="text" name="ip" className="connectionInput" value={this.state.ip} onChange={this.handleChange} onBlur={this.updateServerConfig}/>
         </InputSection>
         <InputSection>
           <ConnectionLabel>Port:</ConnectionLabel>
-          <input id="portInput" type="text" name="port" className="connectionInput" value={this.state.port} onChange={this.handleChange} onBlur={this.updatePort}/>
+          <input id="portInput" type="text" name="port" className="connectionInput" value={this.state.port} onChange={this.handleChange} onBlur={this.updateServerConfig}/>
         </InputSection>
 
       {(oldIp !== this.state.ip || oldPort !== this.state.port) ?
-          <RestartLabel onClick={refresh} id="restart-button">Restart now</RestartLabel>
+          <RestartLabel onClick={this.onSubmit} id="restart-button">Restart now</RestartLabel>
         :
           <>
           </>

@@ -17,6 +17,7 @@ module.exports = {
 }
 
 const fs = require('fs');
+const path = require('path');
 
 /**
     * Returns the content of the JSON file
@@ -38,7 +39,7 @@ function getJSON(path) {
 function writeServerConfigFile(json){
     let toWrite = JSON.stringify(json);
     console.log(toWrite);
-    fs.writeFile('./server_connect_config.json', toWrite, 'utf8', err => {
+    fs.writeFile(`${path.join(__dirname, '../server_connect_config.json')}`, toWrite, 'utf8', err => {
         console.log(err);
     });
 }
