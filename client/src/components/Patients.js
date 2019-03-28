@@ -1,4 +1,11 @@
-import React, { Component } from "react";
+/**
+ * This class represents patient page of the application.
+ * Class contains navbar, patient pages(add, edit) and patients table.
+ *
+ * @author Jakub Cerven
+ */
+
+import React from "react";
 import styled from "styled-components";
 import { ModalProvider } from "styled-react-modal";
 import Modal from "./PatientModal";
@@ -15,47 +22,25 @@ import {openAlert} from "./Alert";
 
 const Container = styled.div`
   border: blue 0 solid;
-    height: calc(103vh - 88px);
-    width: auto;
-    position: relative;
-    top: 20px;
-    padding: 1% 1% 1% 1%;
-
+  height: calc(103vh - 88px);
+  width: auto;
+  position: relative;
+  top: 20px;
+  padding: 1% 1% 1% 1%;
 
   background: rgb(244,249,253);
+
+  display: flex;
+  flex-direction: column;
 `;
 
 
 const TableContainer = styled.div`
-    height: 80%;
-    width: 100%;
+    height: auto;
+    width: auto;
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch ;
-
-    flex-grow: 1;
+    flex-grow: 5;
     flex-shrink: 1;
-`;
-
-const Button = styled.button`
-  border: none;
-  margin-bottom: 1%;
-  color: white;
-  padding: 7px 12px;
-  border-radius: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 130%;
-  font-weight: 200;
-  background-color: #0b989d;
-  word-break: break-word;
-  font-family: "Rajdhani",sans-serif;
-  outline: none;
-  :hover {
-    background: #018589;
-  }
 `;
 
 const modalStyles = {
@@ -82,10 +67,19 @@ class Patients extends React.Component {
     this.initAllPatients();
   }
 
-  refresh = event => {
+    /**
+     * Refreshes page by loading all patients.
+     * @param event
+     */
+    refresh = event => {
     this.initAllPatients();
-  };
+    };
 
+    /**
+     * Handles errors either incorrect authentication or unknown error
+     * @param res response
+     * @param error
+     */
     handleError = (res, error) => {
         if (res.errorType === "authentication"){
             openAlert("Authentication failed.", "confirmationAlert", "Go back to login", () => {this.logout()});
@@ -94,6 +88,9 @@ class Patients extends React.Component {
         }
     };
 
+    /**
+     * Loads all patients.
+     */
     initAllPatients(){
         this.serverConnect.getAllPatients(res => {
             if (res.success){
@@ -108,11 +105,19 @@ class Patients extends React.Component {
         });
     };
 
+    /**
+     * Triggers when patient is edited, loads all patients including newly edited one.
+     */
     initOnPatientEditedCallback(){
         this.serverConnect.setOnPatientEdited((patientId, newInfo) => {
             this.initAllPatients();
         });
     }
+
+    /**
+     * Functions below are used for filtering all attributes of patient.
+     * @param value to be filtered
+     */
 
     number_filter = value => {
         if (value === "") { this.setState({shownPatients: this.state.allPatients})}
@@ -169,17 +174,30 @@ class Patients extends React.Component {
         }
     };
 
+    /**
+     * Event handler for the "go to home page" button.
+     * @param event
+     */
     onHomeClick = event => {
         this.props.history.push("home")
     };
 
+    /**
+     * Event handler for the "sign out" button.
+     * Clears history.
+     * @param event
+     */
     logout = event => {
       this.serverConnect.logout(res => {
           this.props.history.replace("");
       });
     };
 
-
+    /**
+     * Opens edit patient modal if patient is not being edited,
+     * if so displays alert.
+     * @param id of patient to be edited.
+     */
     openEditModal = id => {
         this.serverConnect.requestPatientEditing(id, res => {
             if (res.token){
@@ -190,17 +208,25 @@ class Patients extends React.Component {
         });
     };
 
-
+    /**
+     * Closes edit patient modal, releases edit token.
+     */
     onCloseEditModal = () => {
         this.serverConnect.discardPatientEditing(this.state.selectedId, this.state.editToken, res => {
             this.setState({selectedId: undefined, openEditModal: false, editToken: undefined});
         });
     };
 
+    /**
+     * Opens add patient modal.
+     */
     openAddModal = () => {
         this.setState({openAddModal: true});
     };
 
+    /**
+     * Closes add patient modal.
+     */
     onCloseAddModal = () => {
         this.setState({openAddModal: false})
     };
@@ -210,6 +236,7 @@ class Patients extends React.Component {
             return (
                 <ModalProvider>
                     <Container>
+                    <div>
                           <Navbar
                             over12={!this.state.under12}
                             setUnder12={check => {
@@ -223,8 +250,9 @@ class Patients extends React.Component {
                             onHomeClick={this.onHomeClick}
                             onSignoutClick={this.logout}
                             refresh={this.refresh}
+                            openAddModal={this.openAddModal}
                           />
-                        <Button onClick={this.openAddModal}>Add patient</Button>
+                          </div>
                         <TableContainer>
                             <PatientsTable
                                 shownPatients={this.state.shownPatients}

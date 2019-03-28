@@ -4,7 +4,7 @@
  * protocol need by every component of the UI
  * The socket connection can be created by using the only method available to the public (getServerConnect())
  * which will return a ServerConnect object. That object represent a socket connection and will be
- * univoque and shared between all client components.
+ * unique and shared between all client components.
  * Every protocol will be available through this object.
  * @module serverConnection
  * @author Danilo Del Busso, Mateusz Nowak, Jacopo Madaluni
@@ -53,7 +53,9 @@ class ServerConnect {
             this.onDisconnect();
         });
 
-
+        /**
+         * Triggered when a room is successfully joined
+         */
         this.onRoomJoin = undefined;
         this.socket.on("joined", room => {
             this.onRoomJoin(room);
@@ -76,17 +78,35 @@ class ServerConnect {
         });
     }
 
+<<<<<<< HEAD
 
+=======
+    /**
+     * @returns {Boolean} True if the current user is admin
+     */
+>>>>>>> c7d8af71a9dbeaf579f4a375399ceccd00f7c94d
     isAdmin(){
         return this.currentUser.isAdmin === "yes";
     }
 
+    /**
+     * Sets the current mode to be "under twelve"
+     * This mode will only fetch data relative to patients that are considered "under twelve"
+     */
     setUnderTwelve(){
         this.currentMode = underTwelve;
     }
+
+    /**
+     * Sets the current mode to be "over twelve"
+     * This mode will only fetch data relative to patients that are considered "over twelve"
+     */
     setOverTwelve(){
         this.currentMode = overTwelve;
     }
+    /**
+     * @returns {Boolean} True if the current mode is set to "under twelve"
+     */
     isUnderTwelve(){
         return this.currentMode == underTwelve;
     }
@@ -99,6 +119,11 @@ class ServerConnect {
         cookies.set('accessToken', "", { path: '/' });
     }
 
+    /**
+     * Initializes the logged session
+     * @param {String} token Authentication token 
+     * @param {Function} callback 
+     */
     initSession(token, callback){
         this.setLoginToken(token);
         callback();
@@ -137,6 +162,10 @@ class ServerConnect {
 
     }
 
+    /**
+     * Sets the callback to be called every time a room is successfully joined
+     * @param {Function} callback 
+     */
     setOnRoomJoin(callback){
         this.onRoomJoin = callback;
     }
@@ -202,6 +231,10 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests the information regarding the logged user
+     * @param {Function} callback 
+     */
     getCurrentUser(callback){
         this.socket.emit("getUser", this.loginToken);
         this.socket.once("getUserResponse", res => {
@@ -209,6 +242,11 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests the information regarding all users in the system. 
+     * A positive response will be sent back if the logged user has admin priviledges
+     * @param {Function} callback 
+     */
     getAllUsers(callback){
         this.socket.emit("getAllUsers", this.loginToken);
         this.socket.once("getAllUsersResponse", res => {
@@ -291,7 +329,7 @@ class ServerConnect {
         });
     }
     /**
-     * Requests a token to edit the choosen test, calls the callback with the response.
+     * Requests a token to edit the chosen test, calls the callback with the response.
      * @param {int} testId The id of the test
      * @param {function} callback
      */
@@ -302,7 +340,7 @@ class ServerConnect {
         });
     }
     /**
-     * Requests a token to edit the choosen patient, calls the callback with the response.
+     * Requests a token to edit the chosen patient, calls the callback with the response.
      * @param {String} patientId The id of the patient
      * @param {function} callback
      */
@@ -312,7 +350,12 @@ class ServerConnect {
             callback(res);
         });
     }
-
+    
+    /**
+     * Requests a token to edit the chosen user.
+     * @param {String} username The username of the user 
+     * @param {Function} callback 
+     */
     requestUserEditing(username, callback){
         this.socket.emit("requestUserEditToken", username, this.loginToken);
         this.socket.once("requestUserEditTokenResponse", res => {
@@ -334,7 +377,7 @@ class ServerConnect {
         });
     }
     /**
-     * Requests the distruction of the token previously received to edit a patient, calls the callback with the response.
+     * Requests the destruction of the token previously received to edit a patient, calls the callback with the response.
      * @param {int} patientId The id of the patient
      * @param {String} token The token to destroy.
      * @param {function} callback
@@ -346,6 +389,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests the destruction of the token previously received to edit a user.
+     * @param {String} username The username of the user 
+     * @param {String} token The token to destroy
+     * @param {Function} callback 
+     */
     discardUserEditing(username, token, callback){
         this.socket.emit("discardUserEditing", username, token, this.loginToken);
         this.socket.once("discardUserEditingResponse", res => {
@@ -353,6 +402,11 @@ class ServerConnect {
         })
     }
 
+    /**
+     * Requests to add a new user to the database
+     * @param {JSON} newUser The information of the user to be added 
+     * @param {Function} callback 
+     */
     addUser(newUser, callback){
         this.socket.emit("addUser", newUser, this.loginToken);
         this.socket.once("addUserResponse", res => {
@@ -360,7 +414,11 @@ class ServerConnect {
         });
     }
 
-
+    /**
+     * Requests to add a new patient to the database
+     * @param {JSON} newPatient The information of the new patient to be added 
+     * @param {Function} callback 
+     */
     addPatient(newPatient, callback){
         this.socket.emit("addPatient", newPatient, this.loginToken);
         this.socket.once("addPatientResponse", res => {
@@ -368,6 +426,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests to delete a patient from the database 
+     * @param {String} patientId The id of the patient to delete 
+     * @param {String} token The edit token for that patient
+     * @param {Function} callback 
+     */
     deletePatient(patientId, token, callback){
         this.socket.emit("deletePatient", patientId, token, this.loginToken);
         this.socket.once("deletePatientResponse", res => {
@@ -376,7 +440,7 @@ class ServerConnect {
     }
 
     /**
-    * Thim method emits a request to add a test into the database, calls the callback with the response
+    * This method emits a request to add a test into the database, calls the callback with the response
     * @param {String} patientId The number of the patient that has to take the test.
     * @param {Date} date The first due date of the test
     * @param {String} notes Additional info about the test
@@ -393,7 +457,7 @@ class ServerConnect {
     }
 
     /**
-    * Thim method emits a request to add a test into the database, calls the callback with the response
+    * This method emits a request to add a test into the database, calls the callback with the response
     * @param {int} testId The id of the test to be changed.
     * @param {String} newStatus The new status of the test
     * @example var statusExample = "completed" // Read db manual for more info
@@ -406,7 +470,7 @@ class ServerConnect {
         });
     }
     /**
-    * Thim method emits a request to change a test due date, calls the callback with the response
+    * This method emits a request to change a test due date, calls the callback with the response
     * @param {int} testId The id of the test to be changed.
     * @param {Date} newDate The new status of the test
     * @param {function} callback
@@ -419,7 +483,7 @@ class ServerConnect {
     }
 
     /**
-    * Thim method emits a request to edit a test into the database, calls the callback with the response.
+    * This method emits a request to edit a test into the database, calls the callback with the response.
     * @param {int} testId The id of the test to be changed.
     * @param {JSON} newData All the information about the test
     * @param {String} token The token that grants editing priviledges.
@@ -432,7 +496,7 @@ class ServerConnect {
         });
     }
     /**
-    * Thim method emits a request to edit a patient into the database, calls the callback with the response.
+    * This method emits a request to edit a patient into the database, calls the callback with the response.
     * @param {String} patientId The id of the patient to be changed.
     * @param {JSON} newData All the information about the patient
     * @param {String} token The token that grants editing priviledges.
@@ -445,6 +509,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * This method emits a request to edit a user.
+     * @param {JSON} newData The new info of the user 
+     * @param {String} token The edit token for that user
+     * @param {Function} callback 
+     */
     editUser(newData, token, callback){
         this.socket.emit("editUser", newData, token, this.loginToken);
         this.socket.once("editUserResponse", res => {
@@ -452,6 +522,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests to delete a test from the database
+     * @param {int} testId The id of the test to be deleted
+     * @param {String} token The edit token for that test
+     * @param {Function} callback 
+     */
     unscheduleTest(testId, token, callback){
         this.socket.emit("unscheduleTest", testId, token, this.loginToken);
         this.socket.once("unscheduleTestResponse", res => {
@@ -459,6 +535,10 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests the groups of overdue tests for the email modal
+     * @param {Function} callback 
+     */
     getOverdueReminderGroups(callback){
         let isAdult = this.currentMode == overTwelve;
         this.socket.emit("getOverdueReminderGroups", this.loginToken, isAdult);
@@ -467,13 +547,22 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests to send the overdue reminders for the relative tests
+     * @param {List<int>} testIds The list of tests whose patients must be contacted
+     * @param {Function} callback 
+     */
     sendOverdueReminders(testIds, callback){
         this.socket.emit("sendOverdueReminders", testIds, this.loginToken);
         this.socket.once("sendOverdueRemindersResponse", res => {
             callback(res);
         });
     }
-
+    /**
+     * Requests to send reminders for the relative tests
+     * @param {List<int>} testId The list of tests whose patients must be contacted
+     * @param {Function} callback 
+     */
     sendNormalReminders(testId, callback){
         this.socket.emit("sendNormalReminders", testId, this.loginToken);
         this.socket.once("sendNormalRemindersResponse", res => {
@@ -481,6 +570,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests to change the colour of a patient
+     * @param {String} patientId The id of the patient 
+     * @param {String} newColor The hex code of the new colour (#ff2312)
+     * @param {Function} callback 
+     */
     changePatientColour(patientId, newColor, callback){
         this.socket.emit("changePatientColour", patientId, newColor, this.loginToken);
         this.socket.once("changePatientColourResponse", res => {
@@ -488,6 +583,12 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Requests to change the colour of a test
+     * @param {int} testId The id of the test 
+     * @param {String} newColor The hex code of the new colour (#ff2312)
+     * @param {Function} callback 
+     */
     changeTestColour(testId, newColor, callback){
         this.socket.emit("changeTestColour", testId, newColor, this.loginToken);
         this.socket.once("changeTestColourResponse", res => {
@@ -495,6 +596,11 @@ class ServerConnect {
         });
     }
 
+    /**
+     * Activates the recover password protocol in the server
+     * @param {String} username The username of the user who doesn't remember his/her password (facepalm) 
+     * @param {Function} callback 
+     */
     recoverPassword(username, callback){
         this.socket.emit("passwordRecoverRequest", username);
         this.socket.once("passwordRecoverResponse", res => {
@@ -502,12 +608,17 @@ class ServerConnect {
         });
     }
 
-    generateMonthlyReport(month, callback) {
-        this.socket.emit("generateMonthlyReport", month, this.loginToken);
-        this.socket.once("generateMonthlyReportResponse", res => {
+       /**
+     * @param {string} month - Full name of the month in english, or null if generating report for the whole year.
+     * @param {string} year - Year we are fetching from.
+     */
+    generateReport(month, year, callback) {
+        this.socket.emit("generateReport", month, year, this.loginToken);
+        this.socket.once("generateReportResponse", res => {
             callback(res);
         });
     }
+
 }
 
 

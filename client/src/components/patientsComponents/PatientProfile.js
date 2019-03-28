@@ -1,3 +1,9 @@
+/**
+ * Class renders content of modal that is used for editing patient.
+ *
+ * @author Jakub Cerven
+ */
+
 import React, { Component } from "react";
 import styled from "styled-components";
 
@@ -5,6 +11,7 @@ import PatientSection from "./profileSections/PatientSection";
 import CarerSection from "./profileSections/CarerSection";
 import HospitalSection from "./profileSections/HospitalSection";
 import TestSection from "./profileSections/TestSection";
+import AdditionalInfoSection from "./profileSections/AdditionalInfoSection";
 import OptionSwitch from "./../switch/OptionSwitch"
 
 import {getServerConnect} from "../../serverConnection";
@@ -15,21 +22,24 @@ import {openAlert} from "../Alert";
 const Container = styled.div`
   display: flex;
   width: 100%;
+  height: calc(100vh - 130px);
+  overflow: scroll;
   flex-direction: column;
   background: white;
   align-items: center;
-  padding: 1%;
-`;
 
-const Header = styled.div`
-  width: 100%;
-  height: auto;
+  ::-webkit-scrollbar:vertical {
+    display: initial;
+  }
 `;
 
 const PatientProfileTitle = styled.p`
   text-align: center;
-  font-size: 175%;
-  font-weight: bold;
+  width: auto;
+  font-size: 170%;
+  color: #eee;
+  background-color: #0d4e56;
+  padding: 5px;
   margin: 0;
 `;
 
@@ -39,6 +49,7 @@ const ButtonContainer = styled.div`
   flex-wrap: wrap;
   align-content: flex-start;
   justify-content: center;
+  margin-top: 2%;
 `;
 
 const DeleteButton = styled.button`
@@ -47,17 +58,15 @@ const DeleteButton = styled.button`
   color: white;
   text-align: center;
   text-decoration: none;
-  border-radius: 10px;
-  margin: 3%;
-  font-size: 130%;
+  border-radius: 5px;
+  margin: 2%;
 
   height: 44px;
   min-width: 100px;
-
+  cursor: pointer;
   :hover {
     background-color: #dc2836;
     color: white;
-    border-radius: 10px;
   }
   outline: none;
 `;
@@ -68,17 +77,15 @@ const CloseButton = styled.button`
   color: black;
   text-align: center;
   text-decoration: none;
-  border-radius: 10px;
-  font-size: 130%;
+  border-radius: 5px;
 
   height: 44px;
   min-width: 100px;
-  margin: 3%;
-
+  margin: 2%;
+  cursor: pointer;
   :hover {
     background: #c8c8c8;
     color: black;
-    border-radius: 10px;
   }
   outline: none;
 `;
@@ -89,13 +96,12 @@ const SaveButton = styled.button`
   color: white;
   text-align: center;
   text-decoration: none;
-  margin: 3%;
-  border-radius: 10px;
-  font-size: 130%;
+  margin: 2%;
+  border-radius: 5px;
 
   height: 44px;
   min-width: 100px;
-
+  cursor: pointer;
   :hover {
     background-color: #018589;
     color: white;
@@ -104,17 +110,18 @@ const SaveButton = styled.button`
 `;
 
 const SwitchContainer = styled.div`
-  margin-top: 2%;
+  margin-top: 3%;
+  padding-left: 8px;
 `;
 
 const Hr = styled.hr`
   border: 0;
-  margin: 0;
   clear: both;
-  display: block;
-  width: 96%;               
+  width: 90%;
   background-color: #839595;
   height: 1px;
+  margin-top: 1%;
+  margin-bottom: 1%;
 `;
 
 
@@ -134,6 +141,9 @@ class PatientProfile extends Component {
 
     }
 
+    /**
+     * Deletes patient and closes modal, if patient is not deleted displays alert.
+     */
     deletePatient = () => {
         this.serverConnect.deletePatient(this.state.patientId, this.state.editToken, res => {
             if (res.success){
@@ -142,19 +152,30 @@ class PatientProfile extends Component {
                     this.props.closeModal();
                 });
             }else{
-                openAlert("Something went wrong while deleting the patient.", "confirmationAlert", "OK", () => {return});
+                this.props.handleError(res);
             }
         });
     };
 
+    /**
+     * Opens alert asking user if patient should be deleted.
+     */
     deleteOption = () => {
         openAlert("Are you sure you want to delete this patient?", "optionAlert", "Yes", this.deletePatient, "No", () => {return});
     };
 
+    /**
+     * Display alert and calls deleteTest upon being called.
+     * @param testId of test to be deleted
+     */
     onDeleteTestClick = testId => {
         openAlert("Are you sure you want to delete this test?", "optionAlert", "Yes", () => {this.deleteTest(testId)}, "No", () => {return});
     };
 
+    /**
+     * Unscheduled test.
+     * @param testId of test to be deleted
+     */
     deleteTest = testId => {
         this.serverConnect.requestTestEditing(testId, res => {
             if (res.token){
@@ -172,11 +193,13 @@ class PatientProfile extends Component {
         });
     };
 
+    /**
+     * Loads patient info.
+     */
     loadPatient() {
         this.serverConnect.getFullPatientInfo(this.state.patientId, res => {
             if (res.success) {
                 const info = res.response[0];
-                console.log(info);
                 this.setState({
                     patientName: info.patient_name,
                     patientSurname: info.patient_surname,
@@ -193,9 +216,10 @@ class PatientProfile extends Component {
                     hospitalEmail: info.hospital_email,
                     hospitalPhone: info.hospital_phone,
                     isAdult: info.isAdult,
+                    additionalInfo: info.additional_info,
 
-                    noCarer: info.carer_id ? false : true,
-                    localHospital: info.hospital_id ? false : true,
+                    noCarer: !info.carer_id,
+                    localHospital: !info.hospital_id,
                     ready: true
                 });
             } else {
@@ -204,6 +228,9 @@ class PatientProfile extends Component {
         });
     }
 
+    /**
+     * Loads patient tests.
+     */
     loadTests() {
         this.serverConnect.getNextTestsOfPatient(this.state.patientId, res => {
             if (res.success){
@@ -218,6 +245,10 @@ class PatientProfile extends Component {
         });
     }
 
+    /**
+     * Checks if new data of patient are valid.
+     * @returns {*} if values are correct and message to display if not
+     */
     checkValues () {
         if (emptyCheck(this.state.patientName) || emptyCheck(this.state.patientSurname)) {
             return {correct: false, message: "Please provide patient name and surname."};
@@ -246,6 +277,9 @@ class PatientProfile extends Component {
         return {correct : true};
     }
 
+    /**
+     * Saves new patient data.
+     */
     onSaveClick = () => {
         const result = this.checkValues();
         if (!result.correct) {
@@ -283,19 +317,20 @@ class PatientProfile extends Component {
             }
         }
 
-        const {patientId, editToken, patientName, patientSurname, patientEmail, patientPhone, isAdult} = this.state;
+        const {patientId, editToken, patientName, patientSurname, patientEmail, patientPhone, isAdult, additionalInfo} = this.state;
         let newInfo = {
             patient_no: patientId, patient_name: patientName, patient_surname: patientSurname, patient_email: patientEmail, patient_phone: patientPhone,
             hospital_id: hospitalInfo.hospitalId, hospital_name: hospitalInfo.hospitalName, hospital_email: hospitalInfo.hospitalEmail, hospital_phone: hospitalInfo.hospitalPhone,
             carer_id: carerInfo.carerId, carer_name: carerInfo.carerName, carer_surname: carerInfo.carerSurname, carer_email: carerInfo.carerEmail, carer_phone: carerInfo.carerPhone,
-            relationship: carerInfo.carerRelationship, isAdult: isAdult
+            relationship: carerInfo.carerRelationship, isAdult: isAdult, additional_info: additionalInfo
         };
-        //TODO : save patient "age"
+        console.log(newInfo);
+
         this.serverConnect.editPatient(patientId, newInfo, editToken, res => {
             if (res.success) {
                 openAlert("Patient details updated successfully.", "confirmationAlert", "OK", () => {this.props.closeModal()});
             } else {
-                openAlert("An error occurred while updating the patient.", "confirmationAlert", "OK");
+                this.props.handleError(res);
             }
         });
     };
@@ -303,11 +338,10 @@ class PatientProfile extends Component {
     render() {
         if (this.state.ready && this.state.readyTest) {
             return (
+              <>
+                <PatientProfileTitle>{this.props.purpose}</PatientProfileTitle>
                 <Container>
-                    <Header>
-                        <PatientProfileTitle>{this.props.purpose}</PatientProfileTitle>
-                    </Header>
-                    <Hr/>
+                    <div style ={{height: "auto", width: "auto", marginTop:" 10px"}}>
                     <PatientSection
                         patientId={this.state.patientId}
                         patientName={this.state.patientName}
@@ -323,7 +357,11 @@ class PatientProfile extends Component {
                             })
                         }}
                     />
+                    </div>
+                    <div style ={{height: "auto", width: "100%"}}>
                     <Hr/>
+                    </div>
+                    <div style ={{height: "auto", width: "auto"}}>
                     <CarerSection
                         carerId={this.state.carerId}
                         carerRelationship={this.state.carerRelationship}
@@ -343,14 +381,17 @@ class PatientProfile extends Component {
                             })
                         }}
                     />
+                    </div>
+                    <div style ={{height: "auto", width: "100%"}}>
                     <Hr/>
+                    </div>
+                    <div style ={{height: "auto", width: "auto"}}>
                     <HospitalSection
                         hospitalId={this.state.hospitalId}
                         hospitalName={this.state.hospitalName}
                         hospitalEmail={this.state.hospitalEmail}
                         hospitalPhone={this.state.hospitalPhone}
                         localHospital={this.state.localHospital}
-                        //TODO : maybe find different way of doing this
                         onHospitalClick={() => this.setState({localHospital: !this.state.localHospital})}
                         onChange={hospital => {
                             this.setState({
@@ -360,12 +401,32 @@ class PatientProfile extends Component {
                             })
                         }}
                     />
+                    </div>
+                    <div style ={{height: "auto", width: "100%"}}>
                     <Hr/>
+                    </div>
+                    <div style ={{height: "auto", width: "auto"}}>
                     <TestSection
                         tests={this.state.testsData}
                         deleteTest={this.onDeleteTestClick}
                     />
+                    </div>
+                    <div style ={{height: "auto", width: "100%"}}>
                     <Hr/>
+                    </div>
+                    <div style ={{height: "auto", width: "auto"}}>
+                    <AdditionalInfoSection
+                        additionalInfo={this.state.additionalInfo}
+                        onChange={additionalInfo => {
+                            this.setState({
+                                additionalInfo: additionalInfo.additionalInfo
+                            })
+                        }}
+                    />
+                    </div>
+                    <div style ={{height: "auto", width: "100%"}}>
+                    <Hr/>
+                    </div>
                     <SwitchContainer>
                         <OptionSwitch
                             option1={"Under 12"}
@@ -376,11 +437,12 @@ class PatientProfile extends Component {
                     </SwitchContainer>
                     <ButtonContainer>
                         <SaveButton onClick={this.onSaveClick}>Save changes</SaveButton>
-                        <DeleteButton onClick={this.deleteOption}>Delete patient</DeleteButton>
+                        <DeleteButton onClick={this.deleteOption}>Delete patient</DeleteButton>         
                         <CloseButton onClick={this.props.closeModal}>Close</CloseButton>
                     </ButtonContainer>
 
                 </Container>
+              </>
             );
         }else {
             return "";

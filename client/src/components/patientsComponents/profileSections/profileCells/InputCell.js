@@ -1,3 +1,8 @@
+/**
+ * Class renders input elements of different types depending on the parent props.
+ *
+ */
+
 import React from "react";
 import styled from "styled-components";
 
@@ -68,7 +73,6 @@ class InputCell extends React.Component {
     }
 
     render() {
-        //TODO : improve this
         if (this.props.disabled === true) {
             return (
                 <Container>
