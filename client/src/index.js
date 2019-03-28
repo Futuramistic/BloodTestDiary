@@ -6,12 +6,7 @@ import Header from "./components/header.js";
 import Patients from "./components/Patients.js";
 import * as serviceWorker from "./serviceWorker";
 
-<<<<<<< HEAD
 import { HashRouter, Route } from "react-router-dom";
-=======
-import { Route, BrowserRouter as Router } from "react-router-dom";
-
->>>>>>> c7d8af71a9dbeaf579f4a375399ceccd00f7c94d
 
 const root =  window.location.toString();
 

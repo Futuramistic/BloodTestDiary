@@ -78,13 +78,9 @@ class ServerConnect {
         });
     }
 
-<<<<<<< HEAD
-
-=======
     /**
      * @returns {Boolean} True if the current user is admin
      */
->>>>>>> c7d8af71a9dbeaf579f4a375399ceccd00f7c94d
     isAdmin(){
         return this.currentUser.isAdmin === "yes";
     }
@@ -121,8 +117,8 @@ class ServerConnect {
 
     /**
      * Initializes the logged session
-     * @param {String} token Authentication token 
-     * @param {Function} callback 
+     * @param {String} token Authentication token
+     * @param {Function} callback
      */
     initSession(token, callback){
         this.setLoginToken(token);
@@ -164,7 +160,7 @@ class ServerConnect {
 
     /**
      * Sets the callback to be called every time a room is successfully joined
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     setOnRoomJoin(callback){
         this.onRoomJoin = callback;
@@ -233,7 +229,7 @@ class ServerConnect {
 
     /**
      * Requests the information regarding the logged user
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     getCurrentUser(callback){
         this.socket.emit("getUser", this.loginToken);
@@ -243,9 +239,9 @@ class ServerConnect {
     }
 
     /**
-     * Requests the information regarding all users in the system. 
+     * Requests the information regarding all users in the system.
      * A positive response will be sent back if the logged user has admin priviledges
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     getAllUsers(callback){
         this.socket.emit("getAllUsers", this.loginToken);
@@ -350,11 +346,11 @@ class ServerConnect {
             callback(res);
         });
     }
-    
+
     /**
      * Requests a token to edit the chosen user.
-     * @param {String} username The username of the user 
-     * @param {Function} callback 
+     * @param {String} username The username of the user
+     * @param {Function} callback
      */
     requestUserEditing(username, callback){
         this.socket.emit("requestUserEditToken", username, this.loginToken);
@@ -391,9 +387,9 @@ class ServerConnect {
 
     /**
      * Requests the destruction of the token previously received to edit a user.
-     * @param {String} username The username of the user 
+     * @param {String} username The username of the user
      * @param {String} token The token to destroy
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     discardUserEditing(username, token, callback){
         this.socket.emit("discardUserEditing", username, token, this.loginToken);
@@ -404,8 +400,8 @@ class ServerConnect {
 
     /**
      * Requests to add a new user to the database
-     * @param {JSON} newUser The information of the user to be added 
-     * @param {Function} callback 
+     * @param {JSON} newUser The information of the user to be added
+     * @param {Function} callback
      */
     addUser(newUser, callback){
         this.socket.emit("addUser", newUser, this.loginToken);
@@ -416,8 +412,8 @@ class ServerConnect {
 
     /**
      * Requests to add a new patient to the database
-     * @param {JSON} newPatient The information of the new patient to be added 
-     * @param {Function} callback 
+     * @param {JSON} newPatient The information of the new patient to be added
+     * @param {Function} callback
      */
     addPatient(newPatient, callback){
         this.socket.emit("addPatient", newPatient, this.loginToken);
@@ -427,10 +423,10 @@ class ServerConnect {
     }
 
     /**
-     * Requests to delete a patient from the database 
-     * @param {String} patientId The id of the patient to delete 
+     * Requests to delete a patient from the database
+     * @param {String} patientId The id of the patient to delete
      * @param {String} token The edit token for that patient
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     deletePatient(patientId, token, callback){
         this.socket.emit("deletePatient", patientId, token, this.loginToken);
@@ -511,9 +507,9 @@ class ServerConnect {
 
     /**
      * This method emits a request to edit a user.
-     * @param {JSON} newData The new info of the user 
+     * @param {JSON} newData The new info of the user
      * @param {String} token The edit token for that user
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     editUser(newData, token, callback){
         this.socket.emit("editUser", newData, token, this.loginToken);
@@ -526,7 +522,7 @@ class ServerConnect {
      * Requests to delete a test from the database
      * @param {int} testId The id of the test to be deleted
      * @param {String} token The edit token for that test
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     unscheduleTest(testId, token, callback){
         this.socket.emit("unscheduleTest", testId, token, this.loginToken);
@@ -537,7 +533,7 @@ class ServerConnect {
 
     /**
      * Requests the groups of overdue tests for the email modal
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     getOverdueReminderGroups(callback){
         let isAdult = this.currentMode == overTwelve;
@@ -550,7 +546,7 @@ class ServerConnect {
     /**
      * Requests to send the overdue reminders for the relative tests
      * @param {List<int>} testIds The list of tests whose patients must be contacted
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     sendOverdueReminders(testIds, callback){
         this.socket.emit("sendOverdueReminders", testIds, this.loginToken);
@@ -561,7 +557,7 @@ class ServerConnect {
     /**
      * Requests to send reminders for the relative tests
      * @param {List<int>} testId The list of tests whose patients must be contacted
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     sendNormalReminders(testId, callback){
         this.socket.emit("sendNormalReminders", testId, this.loginToken);
@@ -572,9 +568,9 @@ class ServerConnect {
 
     /**
      * Requests to change the colour of a patient
-     * @param {String} patientId The id of the patient 
+     * @param {String} patientId The id of the patient
      * @param {String} newColor The hex code of the new colour (#ff2312)
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     changePatientColour(patientId, newColor, callback){
         this.socket.emit("changePatientColour", patientId, newColor, this.loginToken);
@@ -585,9 +581,9 @@ class ServerConnect {
 
     /**
      * Requests to change the colour of a test
-     * @param {int} testId The id of the test 
+     * @param {int} testId The id of the test
      * @param {String} newColor The hex code of the new colour (#ff2312)
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     changeTestColour(testId, newColor, callback){
         this.socket.emit("changeTestColour", testId, newColor, this.loginToken);
@@ -598,8 +594,8 @@ class ServerConnect {
 
     /**
      * Activates the recover password protocol in the server
-     * @param {String} username The username of the user who doesn't remember his/her password (facepalm) 
-     * @param {Function} callback 
+     * @param {String} username The username of the user who doesn't remember his/her password (facepalm)
+     * @param {Function} callback
      */
     recoverPassword(username, callback){
         this.socket.emit("passwordRecoverRequest", username);
