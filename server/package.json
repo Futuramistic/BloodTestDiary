@@ -20,7 +20,7 @@
     "mocha": "^5.2.0",
     "mocha-sinon": "^2.1.0",
     "mock-fs": "^4.8.0",
-    "nodemailer": "^5.1.1",
+    "nodemailer": "^6.4.16",
     "nodemon": "^1.18.10",
     "nyc": "^13.3.0",
     "proxyquire": "^2.1.0",
